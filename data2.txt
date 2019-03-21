@@ -1,0 +1,3 @@
+joe;18;men
+susan;19;women
+anne;20;women

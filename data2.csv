@@ -1,0 +1,16 @@
+方法,说明
+count,计算非NA的数量
+describe,针对Series或各dataframe列计算总统计值
+min/max,计算最大最小值
+idxmin/idxmax,计算能够获得最大最小值得索引位置（整数）
+sum,值得总和
+mean,值得平均数
+median,值得中位数
+quantile,计算样本的分位数
+mad,根据平均值计算平均绝对距离差
+var,样本数值的方差
+std,样本的标准差
+cumsum,样本值得累积和
+cummin/cummax,样本累计最小值和最大值
+cumprod,样本值的累计积
+pct_change,计算百分数变化
