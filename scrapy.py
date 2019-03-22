@@ -51,19 +51,20 @@ from bs4 import BeautifulSoup
 
 # ====================爬虫=======================
 
-'''
+# 流程：发起网页请求，拿到网页的链接和文本，文本保存到数据库中，链接接着发起请求，再去拿相应的文本．
+# 则完成一个流程，发起求，找标签，拿数据，保存
+
 # 请求页面获取html
 r =requests.get('http://www.baidu.com').content.decode('utf-8')
 # 解析成html文档格式
-soup = BeautifulSoup(r,'html.parser')    #有两种，html.parser和lxml
+# soup = BeautifulSoup(r,'html.parser')    #有两种，html.parser和lxml
 # print(type(soup))
 # 美化格式，可用可不用,将之前横着的变成html层级结构，方便看
-html = soup.prettify()
+# html = soup.prettify()
 # print(html)
 # 可以将这个html页面保存到文档中，也可以不保存
 # with open('baidu.html','a+',encoding='utf-8') as file:
 #     file.write(html)
-'''
 
 
 soup = BeautifulSoup(open('baidu.html','r',encoding='utf-8'),'lxml')
@@ -95,11 +96,71 @@ soup = BeautifulSoup(open('baidu.html','r',encoding='utf-8'),'lxml')
 # print(soup.head.contents[7].attrs['href'])   #列表索引提取子节点的标签属性
     # 所有子孙节点：
         # descendants属性可以对所有的Tag的子孙节点进行递归循环，和children类似，需要遍历获取内容
-print(soup.head.children)   #返回一个迭代对象
-for d in soup.head.children:
-    print(d)
+# print(soup.head.children)   #返回一个迭代对象
+# for d in soup.head.children:
+#     print(d)
     # 节点内容：
         # string:返回标签里面的内容
         # text:返回标签的文本
+# print(soup.head.contents[9].string)
+# print(soup.head.contents[9].text)
+    # 父节点：
+        # parent:获取当前节点的父节点
+        # parents:获取当前节点的所有父节点,返回一个迭代器，
+# print(soup.head.contents[9].parent)
+# print(soup.head.contents[9].parents)    #迭代器
+    # 兄弟节点：
+        # next_sibling:获取当前节点的下一个兄弟节点
+        # previous_sibling:获取当前节点的前一个兄弟节点
+        # 不存在，返回None
+    # 前后节点：
+        # next_element:与next_sibling和previous_sibling不同，
+        # 它不是针对兄弟节点，也不分父子关系，而是在所有节点，按照排队的顺序，不分层次
+# print(soup.html.meta)
+# print(soup.html.meta.next_sibling.next_sibling)   #换行符也算兄弟节点!按照contents返回的列表中的列表的顺序
+# print(soup.html.meta.previous_sibling.previous_sibling)
+
+# 如何搜索文档树?
+    # find_all(name,attrs,recursive,text,**kwargs)　　　返回一个列表
+    # 1 传字符串,传入标签名
+        # print(soup.find_all('p'))
+        # print(soup.find_all(name='p'))
+    # 2 传正则表达式
+        # print(soup.find_all(href=re.compile('www.*')))   匹配所有www开头的
+        # print(soup.find_all(re.compile('^a')))
+    # 3 如果传入列表参数，BeautifulSoup会将与列表中任一元素匹配的内容返回
+        # print(soup.find_all(['a','p']))
+    # 4 keyword参数(name,attrs)
+        # print(soup.find_all(id='p1'))
+        # print(soup.find_all(name='p'))
+        # print(soup.find_all(name='p',attrs={'name':2}))   第一个name是标签名，第二个是name属性
+    # 5 通过text参数可以搜搜文档中的字符串内容
+        # print(soup.find_all(text='百度'))
+    # 6 限定查找个数
+        # print(soup.find_all(href=re.compile('www.*'),limit=1))
+
+    ## find(name,attrs,recursive,text,**kwargs)　　　返回一个列表,查找一个，配合id等使用较好
+# 查找文档树
+    # 传标签名
+# print(soup.find_all('a'))   #查找所有的a标签，返回一个列表
+# result = soup.find_all('a')
+# for i in result:
+#     print(i.text)    #获取文本
+#     print(i.attrs['href'])   #获取链接
+    # 传正则
+# print(soup.find_all(href = re.compile('^http:.*')))   #通过正则表达查找
+    # 传列表
+# print(soup.find_all(['a','meta']))
+    # 传关键字参数
+# print(soup.find_all(id = 'kw'))
+# print(soup.find_all(attrs={'name':'tn'}))
+# print(soup.find_all(class_ = 'bg s_btn_wr'))
+# print(soup.find_all(name = 'head'))
+    # 传text参数
+# print(soup.find_all(text = '新闻'))
+    # 传限定参数
+# print(soup.find_all('a',limit=2))
+
+
 
 
