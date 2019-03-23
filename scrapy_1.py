@@ -29,6 +29,7 @@ for i in re_a:
 
 # 根据获得的每个链接的地址来获得练习的页面内容
 s ='http://www.runoob.com'
+datas = []
 for x in lis:
     dict = {}
     ar = requests.get(s+x).content.decode('utf-8')
@@ -42,18 +43,34 @@ for x in lis:
     # print(title)
     dict['title'] = title
     # 查找题目
-    tm = soup_ar.find(id='content').h1.next_sibling.next_sibling.next_sibling.next_sibling.text
+    tm = soup_ar.find(id='content').find_all('p')[1].text
     # print(tm)
     dict['tm'] = tm
     # c 程序分析
-    cxfx = soup_ar.find(id='content').h1.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.text
-    # print(cxfx)
+    cxfx = soup_ar.find(id='content').find_all('p')[2].text
     dict['cxfx'] = cxfx
     # d 源代码
-    code = soup_ar.find(class_='hl-main').text
+    try:
+        code = soup_ar.find(class_='hl-main').text
+    except Exception as e:
+        code = soup_ar.find('pre').text
     # print(code)
     dict['code'] = code
-    print(dict)
+    # print(dict['title'],dict['tm'])
+    datas.append(dict)
+# 保存文件
+# import pandas as pd
+# data = pd.DataFrame(datas)
+# data.to_csv('py-100.csv')
+
+    with open('100-py.csv','a+',encoding='utf-8') as file:
+        file.write(dict['title']+'\n')
+        file.write(dict['tm']+'\n')
+        file.write(dict['cxfx']+'\n')
+        file.write(dict['code']+'\n')
+        file.write('*'*50+'\n')
+
+
 
 
 

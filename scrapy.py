@@ -139,7 +139,7 @@ soup = BeautifulSoup(open('baidu.html','r',encoding='utf-8'),'lxml')
     # 6 限定查找个数
         # print(soup.find_all(href=re.compile('www.*'),limit=1))
 
-    ## find(name,attrs,recursive,text,**kwargs)　　　返回一个列表,查找一个，配合id等使用较好
+    ## find(name,attrs,recursive,text,**kwargs)　　　直接返回第一个查找得到的元素标签,配合id等使用较好
 # 查找文档树
     # 传标签名
 # print(soup.find_all('a'))   #查找所有的a标签，返回一个列表
@@ -160,6 +160,48 @@ soup = BeautifulSoup(open('baidu.html','r',encoding='utf-8'),'lxml')
 # print(soup.find_all(text = '新闻'))
     # 传限定参数
 # print(soup.find_all('a',limit=2))
+
+
+# css选择器
+    # 这是另外一种与find_all有异曲同工之妙的查找方法，写css，标签名不加任何修饰，
+    # 类名前加　.，id名前加#　　在这里采用类似的方法来筛选元素，用到的方法是soup.select(),
+    # 返回类型是list
+        # 通过标签名查找：select('p')
+        # 通过类名查找：select('.menu')
+        # 通过id查找：select('#link')
+        # 属性查找：select('p[name=2')
+        # 组合查找：select('div #p2')　　后代，子代
+        # 获取内容：get_text()   或者text    标签的方法，要取出标签来才能用
+        # 获取属性：attrs        返回一个字典
+# print(soup.select('title'))   #标签名
+# print(soup.select('.fm'))   #类名
+# print(soup.select('#kw'))   #id
+# print(soup.select('form[name="f"]'))   #属性
+# # print(soup.select('#lg img'))   #组合
+# print(soup.select('#u1 a[name="tj_trnews"]')[0].get_text())   #获取内容
+# print(soup.select('#u1 a[name="tj_trnews"]')[0].text)   #获取内容
+# print(soup.select('#u1 a[name="tj_trnews"]')[0].attrs)   #获取属性
+# print(soup.select('#u1 a[name="tj_trnews"]')[0].attrs['href'])   #获取属性值
+# print(soup.select('#u1 a[name="tj_trnews"]')[0]['href'])   #获取属性值
+
+
+# lxml用法
+# XPath 是一门在XML文档中查找信息的语言，可用来在XML文档中对元素和属性进行遍历
+
+from lxml import etree
+# １　打开文件解析成为html文档
+html = etree.HTML(open('baidu.html',encoding='utf-8').read())    #会对标签自动补全，容错率高
+# html = etree.parse(open('baidu.html',encoding='utf-8'))    #严格遵守w3c规范
+# html = etree.fromstring(open('baidu.html',encoding='utf-8').read())    #严格遵守w3c规范
+print(type(html))
+# ２　将html文档字符串序列化
+result = etree.tostring(html,pretty_print=True,encoding='utf-8').decode('utf-8')
+print(result)
+
+
+
+
+
 
 
 
