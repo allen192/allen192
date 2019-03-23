@@ -56,6 +56,8 @@ from bs4 import BeautifulSoup
 
 # 请求页面获取html
 r =requests.get('http://www.baidu.com').content.decode('utf-8')
+# content是以字节方式返回响应体
+
 # 解析成html文档格式
 # soup = BeautifulSoup(r,'html.parser')    #有两种，html.parser和lxml
 # print(type(soup))
@@ -78,7 +80,7 @@ soup = BeautifulSoup(open('baidu.html','r',encoding='utf-8'),'lxml')
 #           是一个特殊的Tag，我们可以分别获取它的类型，名称以及属性
 #   Comment:Comment对象是一个特殊类型的NavigableString对象，其输出内容不包括注释符号
 
-#  Tag   拿标签
+#  Tag   拿标签,只能获取第一个标签
 # print(soup.html.head.meta)    # 通过标签获取
 # # 标签的属性：Name Attrs
 # print(soup.div.input.name)    #返回标签姓名
@@ -87,15 +89,15 @@ soup = BeautifulSoup(open('baidu.html','r',encoding='utf-8'),'lxml')
 # print(soup.html.title.string)    #即使注释掉也可以拿到,注释掉了就是comment,没注释就是 NavigableString
 # print(type(soup.html.title.string))
 
-# 如何遍历文档树？
+# 如何遍历文档树？　　　　　用节点关系查找，可以获取非第一个标签，通过父节点之类的．
     # 直接子节点：
         # contents:标签的contents属性可以将Tag的子节点以列表的方式输出
-        # children:返回一个可迭代的对象
+        # children:返回一个可迭代的对象,生成器
 # print(soup.head.contents)    #空格，换行都会算作子节点加入列表中显示，需要手动计算需要的标签是第几个子节点
 # print(soup.head.contents[7])   #列表索引提取子节点
 # print(soup.head.contents[7].attrs['href'])   #列表索引提取子节点的标签属性
     # 所有子孙节点：
-        # descendants属性可以对所有的Tag的子孙节点进行递归循环，和children类似，需要遍历获取内容
+        # descendants属性可以对所有的Tag的子孙节点进行递归循环，和children类似，需要遍历获取内容,生成器
 # print(soup.head.children)   #返回一个迭代对象
 # for d in soup.head.children:
 #     print(d)
@@ -120,7 +122,7 @@ soup = BeautifulSoup(open('baidu.html','r',encoding='utf-8'),'lxml')
 # print(soup.html.meta.next_sibling.next_sibling)   #换行符也算兄弟节点!按照contents返回的列表中的列表的顺序
 # print(soup.html.meta.previous_sibling.previous_sibling)
 
-# 如何搜索文档树?
+# 如何搜索文档树?　　　用函数查找
     # find_all(name,attrs,recursive,text,**kwargs)　　　返回一个列表
     # 1 传字符串,传入标签名
         # print(soup.find_all('p'))
@@ -189,14 +191,71 @@ soup = BeautifulSoup(open('baidu.html','r',encoding='utf-8'),'lxml')
 # XPath 是一门在XML文档中查找信息的语言，可用来在XML文档中对元素和属性进行遍历
 
 from lxml import etree
-# １　打开文件解析成为html文档
+# １　打开文件解析成为html文档,要用xpath()方法，需要将html文档转换成_Element对象
 html = etree.HTML(open('baidu.html',encoding='utf-8').read())    #会对标签自动补全，容错率高
 # html = etree.parse(open('baidu.html',encoding='utf-8'))    #严格遵守w3c规范
 # html = etree.fromstring(open('baidu.html',encoding='utf-8').read())    #严格遵守w3c规范
-print(type(html))
+# print(type(html))
 # ２　将html文档字符串序列化
 result = etree.tostring(html,pretty_print=True,encoding='utf-8').decode('utf-8')
-print(result)
+# print(result)
+# 选取节点 按层级关系选取，在浏览器中，F12,ctrl+find　搜寻节点
+    # nodename  选取此节点的所有子节点
+    #  /　　　　　　　　从根节点选取,即只找当前节点下所有满足条件的子节点
+    #  //　　　　　　　从匹配选择的当前节点选择文档中的节点，而不考虑他们的位置，即找当前节点的所有满足条件的后代节点
+    #  .        选取当前节点
+    #  ..　　　　　　　选取当前节点的父节点
+    #  @        选取属性
+# dom = html.xpath('/html/body/div')    #列表的形式返回，body下所有的div
+# print(dom)
+# dom = html.xpath('//a')      #以列表形式返回文档中所有的a标签
+# dom = html.xpath('//div/a')      #以列表形式返回文档中所有的div下的a标签,层级关系
+# dom = html.xpath('/html/body/div/.')      #以列表形式返回当前节点标签
+# dom = html.xpath('/html/body/div/..')      #以列表形式返回当前节点的父节点的标签
+# dom = html.xpath('//@*')      #以列表形式返回所有的属性值  //代表所有，@代表属性，*代表0次或多次
+# print(dom)
+
+# 谓语
+    # 用来查找某个特定的节点或者包含某个指定的值的节点
+    # 谓语被嵌在方括号中
+    # 路径表达式　　　　　　　　　            结果
+    # /bookstore/book[1]   选取属于bookstore子元素的第一个book元素
+    # /bookstore/book[last()]   选取属于bookstore子元素的最后一个book元素
+    # /bookstore/book[last()-1]   选取属于bookstore子元素的倒数第二个book元素
+    # /bookstore/book[positon()<3]   选取属于bookstore子元素的最前面两个book元素
+    # //title[@lang]       选取所有拥有名为lang的属性的title元素
+    # //title[@lang='eng']       选取lang属性值为eng的title元素
+    # //body/div[a='要闻']　　查找body下其中一个a标签的值为'要闻'的div   即找这个a标签的父标签
+    # /bookstore/book[price>35]   选取bookstore中的book元素，其中price元素的值大于３５
+    # /bookstore/book[price>35]/title   选取bookstore的book元素的所有title元素，其中price元素的值大于３５
+# 通配符
+    # *         匹配任何元素节点
+    # @*        任何属性节点
+    # node()    匹配任何类型的节点
+# 运算符
+    # |     计算两个节点集　　　//book|//cd　　　　　返回所有拥有book和cd元素的节点集
+    # +     加法　　　　　　　　　　　６＋４　　　　　　　　　　　　１０
+    # -     减法　　　　　　　　　　　６－４　　　　　　　　　　　　２
+    # *     加法　　　　　　　　　　　６＊４　　　　　　　　　　　　２４
+    # div   除法　　　　　　　　　　　８ div ４　　　　　　　　　2
+    # =     等于　　　　　　　　　　　price=9.8        符合返回True，不符合返回False
+    # !=   　不等于　　　　　　　　　　price!=9.8       符合返回True，不符合返回False
+    # <     小于　　　　　　　　　　　price<9.8        符合返回True，不符合返回False
+    # <=     小于等于　　　　　　　price<=9.8        符合返回True，不符合返回False
+    # >     大于　　　　　　　　　　　price>9.8        符合返回True，不符合返回False
+    # >=     大于等于　　　　　　　price>=9.8        符合返回True，不符合返回False
+    # or     或　　　　　　　　　　　　price=9.8 or price=9.7   符合返回True，不符合返回False
+
+# 选取好了节点，可以获取文本和相应的属性
+# 获取文本
+dom = html.xpath('//body/div/div[2]/div/p/a[1]/text()')   
+dom1 = html.xpath('string(//body/div/div[2]/div/p/a[1])')
+print(dom)    #返回内容的列表
+print(dom1)    #返回第一条内容
+# 获取属性
+dom2 = html.xpath('//body/div/div[2]/div/p/a[1]/@href')
+print(dom2)    #返回属性的列表
+
 
 
 
